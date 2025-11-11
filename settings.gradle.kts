@@ -1,12 +1,7 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        // Asegura que Google sea el primero para encontrar los plugins de Android y KSP
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -21,4 +16,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Huerto Hogar"
 include(":app")
- 

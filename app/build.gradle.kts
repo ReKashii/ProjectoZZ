@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("com.google.devtools.ksp") version "2.0.0-1.0.21"
 }
 
 android {
@@ -64,6 +66,20 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // --- Dependencias de Room (Persistencia) ---
+    val room_version = "2.7.0-alpha03"
+
+    // 2. Room Runtime
+    implementation("androidx.room:room-runtime:$room_version")
+
+    // 3. Room Kotlin Extensions
+    implementation("androidx.room:room-ktx:$room_version")
+
+    // 4. Room Compiler (KSP)
+
+    ksp("androidx.room:room-compiler:$room_version")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

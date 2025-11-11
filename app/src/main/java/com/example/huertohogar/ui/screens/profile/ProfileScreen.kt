@@ -39,6 +39,9 @@ fun ProfileScreen(navController: NavController, viewModel: HuertoHogarViewModel)
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            // Se eliminó la lógica de la galería que causaba el crash.
+            // Ahora solo se muestra la lista de opciones.
+
             ProfileItem(Icons.Default.Person, "Mis datos")
             Divider()
             ProfileItem(Icons.Default.Receipt, "Mis pedidos")
