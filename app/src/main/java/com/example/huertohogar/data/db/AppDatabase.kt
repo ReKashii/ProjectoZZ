@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-// Imports explícitos para forzar la resolución
+
 import com.example.huertohogar.data.db.ProductDao
 import com.example.huertohogar.data.db.ProductEntity
 
@@ -17,7 +17,7 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            // Si la instancia es null, la crea, sino, la retorna (Singleton pattern)
+            
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
