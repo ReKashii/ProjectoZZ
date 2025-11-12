@@ -45,9 +45,14 @@ class HuertoHogarViewModel(application: Application) : AndroidViewModel(applicat
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
 
-    // Estado del carrito de compras (persistencia SIMULADA en memoria, el requisito era Room para datos)
+    // Estado del carrito de compras (persistencia SIMULADA en memoria)
     private val _cart = MutableStateFlow<List<CartItem>>(emptyList())
     val cart: StateFlow<List<CartItem>> = _cart
+
+    // --- CORRECCIÓN 1: Añadir estado para Pedidos Completados ---
+    private val _orders = MutableStateFlow<List<CartItem>>(emptyList())
+    val orders: StateFlow<List<CartItem>> = _orders
+    // --- FIN CORRECCIÓN 1 ---
 
     // Propiedades derivadas del carrito
     val cartTotal: StateFlow<Double> = _cart.map { it.sumOf { item -> item.subtotal } }
@@ -60,10 +65,7 @@ class HuertoHogarViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    /**
-     * ... (Funciones register, login, logout, onSearchQueryChange, addToCart, etc. SIN CAMBIOS LÓGICOS)
-     */
-
+    // ... (register, login... se mantienen igual)
     fun register(email: String, password: String, onRegisterSuccess: () -> Unit) {
         viewModelScope.launch {
             if (email.isNotBlank() && password.length >= 6) {
@@ -88,12 +90,12 @@ class HuertoHogarViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             userSessionRepository.setLoggedIn(false)
             _cart.value = emptyList()
+            _orders.value = emptyList() // --- CORRECCIÓN 2: Limpiar pedidos al salir ---
         }
     }
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
-        // La lógica de filtrado ahora se maneja en el 'combine' de arriba.
     }
 
     fun addToCart(product: Product) {
@@ -142,6 +144,12 @@ class HuertoHogarViewModel(application: Application) : AndroidViewModel(applicat
         }
         println("TOTAL: ${_cart.value.sumOf { it.subtotal }} CLP")
 
+        // --- CORRECCIÓN 3: Guardar el carrito en la lista de Pedidos ---
+        _orders.update { currentOrders ->
+            currentOrders + _cart.value
+        }
+
+        // Vaciar carrito
         _cart.value = emptyList()
     }
 }

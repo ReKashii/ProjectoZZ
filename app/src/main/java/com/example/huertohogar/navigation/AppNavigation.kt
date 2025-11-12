@@ -37,6 +37,7 @@ fun AppNavigation() {
     val startDestination = Screen.Products.route
 
     NavHost(navController = navController, startDestination = startDestination) {
+        // ... (Login, Register, Products, Cart, Profile, About se mantienen igual)
         composable(Screen.Login.route) {
             LoginScreen(navController = navController, viewModel = viewModel)
         }
@@ -50,21 +51,21 @@ fun AppNavigation() {
             CartScreen(navController = navController, viewModel = viewModel)
         }
         composable(Screen.Profile.route) {
-            // Proteger la ruta del perfil
             if (isLoggedIn) {
                 ProfileScreen(navController = navController, viewModel = viewModel)
             } else {
-                // Si no ha iniciado sesión, navegar a Login
                 LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
             }
         }
         composable(Screen.About.route) {
             AboutScreen(navController = navController, viewModel = viewModel)
         }
-        // --- NUEVAS RUTAS AÑADIDAS ---
+
+        // --- RUTAS MODIFICADAS ---
         composable(Screen.Orders.route) {
             if (isLoggedIn) {
-                OrdersScreen(navController = navController)
+                // --- CORRECCIÓN: Pasar el ViewModel ---
+                OrdersScreen(navController = navController, viewModel = viewModel)
             } else {
                 LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
             }

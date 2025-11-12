@@ -25,6 +25,7 @@ import com.example.huertohogar.navigation.Screen
 import com.example.huertohogar.repository.HuertoHogarViewModel
 import com.example.huertohogar.ui.components.MainScaffold
 import androidx.compose.foundation.clickable
+
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
     MainScaffold(navController = navController, screen = Screen.Profile, viewModel = viewModel) { padding ->
@@ -33,31 +34,30 @@ fun ProfileScreen(navController: NavController, viewModel: HuertoHogarViewModel)
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Se eliminó la lógica de la galería que causaba el crash.
-            // Ahora se muestra una lista de opciones M3 funcional.
 
             ProfileItem(
                 icon = Icons.Default.AccountCircle,
                 title = "Mis datos",
-                onClick = { /* Navegar a una futura pantalla de "Editar Datos" */ }
+                // --- CORRECCIÓN: Asignar navegación ---
+                onClick = { navController.navigate(Screen.Settings.route) }
             )
             Divider()
             ProfileItem(
                 icon = Icons.AutoMirrored.Filled.ListAlt,
                 title = "Mis pedidos",
-                onClick = { navController.navigate(Screen.Orders.route) } // CORREGIDO
+                onClick = { navController.navigate(Screen.Orders.route) }
             )
             Divider()
             ProfileItem(
                 icon = Icons.Default.LocationOn,
                 title = "Mis direcciones",
-                onClick = { navController.navigate(Screen.Addresses.route) } // CORREGIDO
+                onClick = { navController.navigate(Screen.Addresses.route) }
             )
             Divider()
             ProfileItem(
                 icon = Icons.Default.Settings,
                 title = "Configuración de cuenta",
-                onClick = { navController.navigate(Screen.Settings.route) } // CORREGIDO
+                onClick = { navController.navigate(Screen.Settings.route) }
             )
             Divider()
             ProfileItem(
