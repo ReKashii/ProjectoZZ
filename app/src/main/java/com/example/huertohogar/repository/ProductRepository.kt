@@ -61,4 +61,4 @@ class ProductRepository(private val productDao: ProductDao) {
             productDao.insertAll(getStaticProducts())
         }
     }
-} // <--- ¡Esta es la llave que faltaba para cerrar la clase ProductRepository!
+} 
