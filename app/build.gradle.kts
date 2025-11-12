@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    id("com.google.devtools.ksp") version "2.0.0-1.0.21"
+    // CORRECCIÓN: Aplicar KSP sin la versión, ya que se define en el root build.gradle.kts
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -62,10 +63,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.compose.material:material:1.6.7")
-    implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // --- DEPENDENCIAS DE MATERIAL 3 (MODIFICADO) ---
+    implementation(libs.androidx.compose.material3) // Añadido (M3)
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.7") // Añadido (M3 Icons)
+
 
     // --- Dependencias de Room (Persistencia) ---
     val room_version = "2.7.0-alpha03"

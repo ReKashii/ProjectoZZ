@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+// Imports explícitos para forzar la resolución
+import com.example.huertohogar.data.db.ProductDao
+import com.example.huertohogar.data.db.ProductEntity
 
 @Database(entities = [ProductEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {

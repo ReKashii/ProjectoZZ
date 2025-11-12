@@ -5,22 +5,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.huertohogar.navigation.Screen
 import com.example.huertohogar.repository.HuertoHogarViewModel
-import com.example.huertohogar.ui.theme.EmeraldGreen
-import com.example.huertohogar.ui.theme.SoftWhite
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
     var firstName by remember { mutableStateOf("") }
@@ -49,19 +47,21 @@ fun RegisterScreen(navController: NavController, viewModel: HuertoHogarViewModel
                 title = { Text("Registro de Usuario") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                backgroundColor = EmeraldGreen,
-                contentColor = Color.White,
-                modifier = Modifier.statusBarsPadding()
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SoftWhite)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(it)
                 .padding(32.dp)
                 .verticalScroll(rememberScrollState()),
@@ -84,11 +84,11 @@ fun RegisterScreen(navController: NavController, viewModel: HuertoHogarViewModel
             )
 
             if (isPasswordValid && confirmPassword.isNotBlank()) {
-                Text("Contraseñas válidas", color = EmeraldGreen)
+                Text("Contraseñas válidas", color = MaterialTheme.colorScheme.primary)
             } else if (!isPasswordLengthValid && password.isNotBlank()) {
-                Text("La contraseña debe tener al menos 6 caracteres", color = MaterialTheme.colors.error)
+                Text("La contraseña debe tener al menos 6 caracteres", color = MaterialTheme.colorScheme.error)
             } else if (!passwordsMatch && confirmPassword.isNotBlank()) {
-                Text("Las contraseñas no coinciden", color = MaterialTheme.colors.error)
+                Text("Las contraseñas no coinciden", color = MaterialTheme.colorScheme.error)
             }
 
 
@@ -104,9 +104,9 @@ fun RegisterScreen(navController: NavController, viewModel: HuertoHogarViewModel
                 },
                 enabled = isFormValid,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = EmeraldGreen)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Registrarse", color = Color.White)
+                Text("Registrarse", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

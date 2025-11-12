@@ -1,39 +1,57 @@
 package com.example.huertohogar.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Shapes
-import androidx.compose.material.Typography
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+// Esquema de colores M3
+private val LightColorScheme = lightColorScheme(
+    primary = VibrantGreen,
+    onPrimary = OnVibrantGreen,
+    primaryContainer = VibrantGreenContainer,
+    onPrimaryContainer = Color(0xFF00201D),
+
+    secondary = CitrusYellow,
+    onSecondary = OnCitrusYellow,
+    secondaryContainer = CitrusYellowContainer,
+    onSecondaryContainer = Color(0xFF271A00),
+
+    tertiary = EarthyBrown,
+    onTertiary = OnEarthyBrown,
+    tertiaryContainer = EarthyBrownContainer,
+    onTertiaryContainer = Color(0xFF1E1A19),
+
+    background = Background,
+    onBackground = OnBackground,
+    surface = Surface,
+    onSurface = OnSurface,
+
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = OnSurfaceVariant,
+    outline = Outline,
+)
 
 // Definición de Tema
 @Composable
 fun HuertoHogarTheme(content: @Composable () -> Unit) {
-    val colors = lightColors(
-        primary = EmeraldGreen,
-        primaryVariant = EmeraldGreen.copy(alpha = 0.8f),
-        secondary = MustardYellow,
-        background = SoftWhite,
-        surface = Color.White,
-        onPrimary = Color.White,
-        onSecondary = DarkGrey,
-        onBackground = DarkGrey,
-        onSurface = DarkGrey
-    )
+    val colors = LightColorScheme
 
     MaterialTheme(
-        colors = colors,
+        colorScheme = colors,
         typography = Typography(
-            h4 = TextStyle(fontFamily = PlayfairDisplayFont, fontWeight = FontWeight.Bold, color = LightBrown, fontSize = 28.sp),
-            h6 = TextStyle(fontFamily = PlayfairDisplayFont, fontWeight = FontWeight.SemiBold, color = LightBrown, fontSize = 18.sp),
-            body1 = TextStyle(fontFamily = MontserratFont, color = DarkGrey, fontSize = 16.sp),
-            button = TextStyle(fontFamily = MontserratFont, fontWeight = FontWeight.Bold)
+            // Tipografía M3 (ejemplo de reemplazo)
+            headlineSmall = TextStyle(fontFamily = PlayfairDisplayFont, fontWeight = FontWeight.Bold, color = EarthyBrown, fontSize = 24.sp),
+            titleLarge = TextStyle(fontFamily = PlayfairDisplayFont, fontWeight = FontWeight.SemiBold, color = EarthyBrown, fontSize = 20.sp),
+            bodyLarge = TextStyle(fontFamily = MontserratFont, color = OnBackground, fontSize = 16.sp),
+            bodyMedium = TextStyle(fontFamily = MontserratFont, color = OnSurfaceVariant, fontSize = 14.sp),
+            labelLarge = TextStyle(fontFamily = MontserratFont, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         ),
         shapes = Shapes(
             small = RoundedCornerShape(8.dp),
