@@ -67,8 +67,18 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     // --- DEPENDENCIAS DE MATERIAL 3 (MODIFICADO) ---
-    implementation(libs.androidx.compose.material3) // Añadido (M3)
-    implementation("androidx.compose.material:material-icons-extended-android:1.6.7") // Añadido (M3 Icons)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // --- DEPENDENCIAS DE MATERIAL (M2 y M3) ---
+
+    // 1. AÑADIR ESTA LÍNEA DE VUELTA (M2)
+    // (La necesitas para los Iconos.Filled que estás usando)
+    implementation("androidx.compose.material:material:1.6.7")
+
+    // 2. MANTENER ESTAS LÍNEAS (M3)
+    implementation(libs.androidx.compose.material3)
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
 
 
     // --- Dependencias de Room (Persistencia) ---
