@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.map
 
 class ProductRepository(private val productDao: ProductDao) {
 
-  
+    // Función que simula la obtención de productos estáticos
     private fun getStaticProducts(): List<ProductEntity> {
-       
+        
         return listOf(
             ProductEntity(
                 id = "FR001", name = "Manzanass Fuji", description = "Manzanas dulces y crujientes, perfectas para un snack.",
@@ -49,14 +49,16 @@ class ProductRepository(private val productDao: ProductDao) {
     }
 
 
+    // Mapea el Flow reactivo de Entidades (Room) a Modelos (Dominio)
     val allProducts: Flow<List<Product>> = productDao.getAllProducts().map { entities ->
         entities.map { it.toProductModel() }
     }
 
- 
+    
+    // Inserta productos estáticos solo si la base de datos está vacía
     suspend fun populateDatabase() {
         if (productDao.getAllProducts().first().isEmpty()) {
             productDao.insertAll(getStaticProducts())
         }
     }
-}
+} // <--- ¡Esta es la llave que faltaba para cerrar la clase ProductRepository!
