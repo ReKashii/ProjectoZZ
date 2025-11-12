@@ -6,9 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-/**
- * DAO para acceder y manipular los datos de la tabla 'products'.
- */
+
 @Dao
 interface ProductDao {
     @Query("SELECT * FROM products")
