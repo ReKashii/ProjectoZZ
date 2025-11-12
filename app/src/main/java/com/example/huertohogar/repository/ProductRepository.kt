@@ -5,15 +5,15 @@ import com.example.huertohogar.data.db.ProductEntity
 import com.example.huertohogar.data.db.toProductModel
 import com.example.huertohogar.data.model.Product
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first // Necesario para .first()
+import kotlinx.coroutines.flow.first 
 import kotlinx.coroutines.flow.map
 
 
 class ProductRepository(private val productDao: ProductDao) {
 
-    // Lista estática para poblar la BD solo al inicio
+  
     private fun getStaticProducts(): List<ProductEntity> {
-        // ... (Tu lista de productos Entity)
+       
         return listOf(
             ProductEntity(
                 id = "FR001", name = "Manzanass Fuji", description = "Manzanas dulces y crujientes, perfectas para un snack.",
@@ -48,17 +48,12 @@ class ProductRepository(private val productDao: ProductDao) {
         )
     }
 
-    /**
-     * Devuelve todos los productos desde Room como un Flow de modelos.
-     */
+
     val allProducts: Flow<List<Product>> = productDao.getAllProducts().map { entities ->
         entities.map { it.toProductModel() }
     }
 
-    /**
-     * Inserta los productos iniciales en la BD.
-     * La función .first() bloquea la coroutine hasta que recibe el primer valor (la lista de productos).
-     */
+ 
     suspend fun populateDatabase() {
         if (productDao.getAllProducts().first().isEmpty()) {
             productDao.insertAll(getStaticProducts())
