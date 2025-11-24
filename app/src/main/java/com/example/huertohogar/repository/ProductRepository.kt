@@ -16,7 +16,7 @@ class ProductRepository(private val productDao: ProductDao) {
         
         return listOf(
             ProductEntity(
-                id = "FR001", name = "Manzanass Fuji", description = "Manzanas dulces y crujientes, perfectas para un snack.",
+                id = "FR001", name = "Manzanass Fujii", description = "Manzanas dulces y crujientes, perfectas para un snack.",
                 price = 2000.0, stock = 120, category = "Frutas Frescas",
                 imageUrl = "https://santaisabel.vtexassets.com/arquivos/ids/174684-900-900?width=900&height=900&aspect=true"
             ),
