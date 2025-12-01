@@ -1,34 +1,30 @@
 package com.example.huertohogar.ui.screens.profile
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.huertohogar.navigation.Screen
 import com.example.huertohogar.repository.HuertoHogarViewModel
 import com.example.huertohogar.ui.components.MainScaffold
+import androidx.compose.foundation.clickable
 
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
@@ -37,33 +33,60 @@ fun ProfileScreen(navController: NavController, viewModel: HuertoHogarViewModel)
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
         ) {
-            ProfileItem(Icons.Default.Person, "Mis datos")
+
+            ProfileItem(
+                icon = Icons.Default.AccountCircle,
+                title = "Mis datos",
+                // --- CORRECCIÓN: Asignar navegación ---
+                onClick = { navController.navigate(Screen.Settings.route) }
+            )
             Divider()
-            ProfileItem(Icons.Default.Receipt, "Mis pedidos")
+            ProfileItem(
+                icon = Icons.AutoMirrored.Filled.ListAlt,
+                title = "Mis pedidos",
+                onClick = { navController.navigate(Screen.Orders.route) }
+            )
             Divider()
-            ProfileItem(Icons.Default.LocationOn, "Mis direcciones")
+            ProfileItem(
+                icon = Icons.Default.LocationOn,
+                title = "Mis direcciones",
+                onClick = { navController.navigate(Screen.Addresses.route) }
+            )
             Divider()
-            ProfileItem(Icons.Default.Settings, "Configuración de cuenta")
+            ProfileItem(
+                icon = Icons.Default.Settings,
+                title = "Configuración de cuenta",
+                onClick = { navController.navigate(Screen.Settings.route) }
+            )
             Divider()
-            ProfileItem(Icons.Default.ExitToApp, "Cerrar sesión", onClick = { viewModel.logout() })
+            ProfileItem(
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
+                title = "Cerrar sesión",
+                onClick = { viewModel.logout() },
+                isLogout = true
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileItem(icon: ImageVector, title: String, onClick: (() -> Unit)? = null) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = onClick != null) { onClick?.invoke() }
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Icon(imageVector = icon, contentDescription = title)
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = title, style = MaterialTheme.typography.body1)
+fun ProfileItem(icon: ImageVector, title: String, onClick: () -> Unit, isLogout: Boolean = false) {
+
+    val colors = if (isLogout) {
+        ListItemDefaults.colors(
+            headlineColor = MaterialTheme.colorScheme.error,
+            leadingIconColor = MaterialTheme.colorScheme.error
+        )
+    } else {
+        ListItemDefaults.colors()
     }
+
+    ListItem(
+        headlineContent = { Text(text = title) },
+        leadingContent = { Icon(imageVector = icon, contentDescription = title) },
+        modifier = Modifier.clickable(onClick = onClick),
+        colors = colors
+    )
 }

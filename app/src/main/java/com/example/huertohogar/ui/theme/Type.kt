@@ -1,34 +1,11 @@
 package com.example.huertohogar.ui.theme
 
-import androidx.compose.material.Typography
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
 // Tipografía (Simulación de fuentes con FontFamilies genéricas)
 val MontserratFont = FontFamily.SansSerif
 val PlayfairDisplayFont = FontFamily.Serif
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    body1 = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    button = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp
-    ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
-    )
-    */
-)
+// NO ES NECESARIO DEFINIR 'val Typography' AQUÍ.
+// Lo eliminamos porque ya se define correctamente dentro de 'Theme.kt'
+// con los nuevos estilos de Material 3.

@@ -13,11 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.huertohogar.repository.HuertoHogarViewModel
 import com.example.huertohogar.repository.ViewModelFactory
 import com.example.huertohogar.ui.screens.about.AboutScreen
+import com.example.huertohogar.ui.screens.addresses.AddressesScreen
 import com.example.huertohogar.ui.screens.cart.CartScreen
 import com.example.huertohogar.ui.screens.login.LoginScreen
+import com.example.huertohogar.ui.screens.orders.OrdersScreen
 import com.example.huertohogar.ui.screens.register.RegisterScreen
 import com.example.huertohogar.ui.screens.products.ProductListScreen
 import com.example.huertohogar.ui.screens.profile.ProfileScreen
+import com.example.huertohogar.ui.screens.settings.SettingsScreen
 
 /**
  * Componente principal de navegación de la aplicación (NavHost).
@@ -34,6 +37,7 @@ fun AppNavigation() {
     val startDestination = Screen.Products.route
 
     NavHost(navController = navController, startDestination = startDestination) {
+        // ... (Login, Register, Products, Cart, Profile, About se mantienen igual)
         composable(Screen.Login.route) {
             LoginScreen(navController = navController, viewModel = viewModel)
         }
@@ -47,16 +51,38 @@ fun AppNavigation() {
             CartScreen(navController = navController, viewModel = viewModel)
         }
         composable(Screen.Profile.route) {
-            // Proteger la ruta del perfil
             if (isLoggedIn) {
                 ProfileScreen(navController = navController, viewModel = viewModel)
             } else {
-                // Si no ha iniciado sesión, navegar a Login
                 LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
             }
         }
         composable(Screen.About.route) {
             AboutScreen(navController = navController, viewModel = viewModel)
+        }
+
+        // --- RUTAS MODIFICADAS ---
+        composable(Screen.Orders.route) {
+            if (isLoggedIn) {
+                // --- CORRECCIÓN: Pasar el ViewModel ---
+                OrdersScreen(navController = navController, viewModel = viewModel)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
+            }
+        }
+        composable(Screen.Addresses.route) {
+            if (isLoggedIn) {
+                AddressesScreen(navController = navController)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
+            }
+        }
+        composable(Screen.Settings.route) {
+            if (isLoggedIn) {
+                SettingsScreen(navController = navController)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(Screen.Login.route) }
+            }
         }
     }
 }

@@ -4,14 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -21,10 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.huertohogar.navigation.Screen
 import com.example.huertohogar.repository.HuertoHogarViewModel
-import com.example.huertohogar.ui.theme.DarkGrey
-import com.example.huertohogar.ui.theme.EmeraldGreen
-import com.example.huertohogar.ui.theme.SoftWhite
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
     var email by remember { mutableStateOf("") }
@@ -43,19 +40,21 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                             }
                         }
                     }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                backgroundColor = EmeraldGreen,
-                contentColor = Color.White,
-                modifier = Modifier.statusBarsPadding()
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SoftWhite)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(it)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
@@ -64,8 +63,8 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .clip(MaterialTheme.shapes.large),
-                elevation = 8.dp,
-                backgroundColor = Color.White
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(
                     modifier = Modifier.padding(32.dp),
@@ -74,12 +73,13 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                 ) {
                     Text(
                         "HUERTOHOGAR",
-                        style = MaterialTheme.typography.h4,
-                        textAlign = TextAlign.Center
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         "Inicia sesión para llevar la frescura del campo a tu hogar",
-                        style = MaterialTheme.typography.body1.copy(color = DarkGrey.copy(alpha = 0.7f)),
+                        style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
 
@@ -89,10 +89,11 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                         label = { Text("Correo Electrónico") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = EmeraldGreen,
-                            unfocusedBorderColor = EmeraldGreen.copy(alpha = 0.5f),
-                            cursorColor = EmeraldGreen
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            cursorColor = MaterialTheme.colorScheme.primary
                         )
                     )
 
@@ -103,10 +104,11 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = EmeraldGreen,
-                            unfocusedBorderColor = EmeraldGreen.copy(alpha = 0.5f),
-                            cursorColor = EmeraldGreen
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            cursorColor = MaterialTheme.colorScheme.primary
                         )
                     )
 
@@ -124,10 +126,14 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                         },
                         enabled = isLoginEnabled,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = EmeraldGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = MaterialTheme.shapes.small
                     ) {
-                        Text("Ingresar", color = Color.White, style = MaterialTheme.typography.button.copy(fontSize = 18.sp))
+                        Text(
+                            "Ingresar",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp)
+                        )
                     }
 
                     Row(
@@ -135,12 +141,12 @@ fun LoginScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Si no tienes una cuenta, ", style = MaterialTheme.typography.body1.copy(fontSize = 14.sp))
+                        Text("Si no tienes una cuenta, ", style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp))
                         Text(
                             text = "Regístrate aquí",
                             modifier = Modifier.clickable { navController.navigate(Screen.Register.route) },
-                            color = EmeraldGreen,
-                            style = MaterialTheme.typography.body1.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         )
                     }
                 }
