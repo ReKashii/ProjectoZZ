@@ -2,23 +2,14 @@ package com.example.huertohogar.ui.screens.products
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -42,6 +33,8 @@ import com.example.huertohogar.ui.components.MainScaffold
 @Composable
 fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewModel) {
     val products by viewModel.products.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
     MainScaffold(navController = navController, screen = Screen.Products, viewModel = viewModel) { padding ->
@@ -52,7 +45,7 @@ fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewMo
                 .background(MaterialTheme.colorScheme.background)
         ) {
 
-            // Campo de Búsqueda (Requerimiento Funcional)
+            // 1. Buscador
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
@@ -60,8 +53,8 @@ fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewMo
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Buscar") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(24.dp),
+                    .padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -70,7 +63,33 @@ fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewMo
                 )
             )
 
-            if (products.isEmpty() && searchQuery.isBlank()) {
+            // 2. Filtros de Categoría (Chips)
+            if (categories.isNotEmpty()) {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    items(categories) { category ->
+                        val isSelected = category.name == selectedCategory
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { viewModel.selectCategory(category.name) },
+                            label = { Text(category.name) },
+                            leadingIcon = if (isSelected) {
+                                { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                    }
+                }
+            }
+
+            // 3. Lista de Productos
+            if (products.isEmpty() && searchQuery.isBlank() && selectedCategory == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
@@ -80,7 +99,7 @@ fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewMo
                 }
             } else {
                 LazyColumn(
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(products) { product ->
@@ -92,57 +111,30 @@ fun ProductListScreen(navController: NavController, viewModel: HuertoHogarViewMo
     }
 }
 
-/**
- * Item individual del producto en la lista.
- */
 @Composable
 fun ProductItem(product: Product, onAddToCart: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium),
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            // Placeholder de Imagen (Requerimiento Funcional)
             Image(
                 painter = rememberAsyncImagePainter(product.imageUrl),
                 contentDescription = product.name,
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(MaterialTheme.shapes.small),
+                    .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    product.name,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    "CLP $${"%,.0f".format(product.price)} / kg",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                )
-                Text(
-                    product.description.take(40) + "...",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp)
-                )
+                Text(product.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(product.category, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                Text("CLP $${"%,.0f".format(product.price)}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = onAddToCart,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = MaterialTheme.shapes.small,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                modifier = Modifier.align(Alignment.CenterVertically)
-            ) {
-                Icon(Icons.Filled.AddShoppingCart, contentDescription = "Agregar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimary)
-                Spacer(Modifier.width(4.dp))
-                Text("Añadir", color = MaterialTheme.colorScheme.onPrimary)
+            IconButton(onClick = onAddToCart) {
+                Icon(Icons.Filled.AddShoppingCart, contentDescription = "Agregar", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }

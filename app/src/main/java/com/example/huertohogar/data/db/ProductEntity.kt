@@ -2,24 +2,35 @@ package com.example.huertohogar.data.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
+import com.example.huertohogar.data.model.Product
 
-/**
- * Entidad de Room para la tabla de Productos.
- * Almacena los datos de los productos en la base de datos local.
- */
 @Entity(tableName = "products")
 data class ProductEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("nombre") // Mapea "nombre" del JSON a "name"
     val name: String,
+
+    @SerializedName("precio") // Mapea "precio" del JSON a "price"
     val price: Double,
+
+    @SerializedName("descripcion")
     val description: String,
-    val category: String,
+
+    @SerializedName("categoria_nombre") // Aprovecha este campo nuevo
+    val category: String = "General",
+
+    @SerializedName("stock")
     val stock: Int,
+
+    @SerializedName("imagen") // Mapea "imagen" del JSON a "imageUrl"
     val imageUrl: String
 )
 
-// Extension function para convertir de Entity a Model (para usar en ViewModel)
-fun ProductEntity.toProductModel() = com.example.huertohogar.data.model.Product(
+fun ProductEntity.toProductModel() = Product(
     id = id,
     name = name,
     price = price,

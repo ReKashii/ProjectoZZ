@@ -5,7 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.huertohogar.data.db.AppDatabase
 import com.example.huertohogar.data.model.CartItem
+import com.example.huertohogar.data.model.Category
 import com.example.huertohogar.data.model.Product
+import com.example.huertohogar.data.network.RetrofitInstance
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -15,14 +17,22 @@ import kotlinx.coroutines.launch
 class HuertoHogarViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userSessionRepository = UserSessionRepository(application)
-    private val productDao = AppDatabase.getDatabase(application).productDao() // Obtener DAO
-    private val productRepository = ProductRepository(productDao) // Inyectar DAO en Repository
+    private val productDao = AppDatabase.getDatabase(application).productDao()
+    private val productRepository = ProductRepository(productDao)
 
     // Estado de autenticación
     val isLoggedIn: StateFlow<Boolean> = userSessionRepository.isLoggedIn
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    // Estado para contener TODOS los productos (desde Room)
+    // Estado para las Categorías
+    private val _categories = MutableStateFlow<List<Category>>(emptyList())
+    val categories: StateFlow<List<Category>> = _categories
+
+    // Categoría seleccionada actualmente
+    private val _selectedCategory = MutableStateFlow<String?>(null)
+    val selectedCategory: StateFlow<String?> = _selectedCategory
+
+    // Estado base de productos (desde Room)
     private val allProductsFlow: StateFlow<List<Product>> = productRepository.allProducts
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -30,126 +40,106 @@ class HuertoHogarViewModel(application: Application) : AndroidViewModel(applicat
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    // Estado FINAL del catálogo de productos (Filtrado + Room)
+    // --- LÓGICA MAESTRA DE FILTRADO ---
     val products: StateFlow<List<Product>> = combine(
         allProductsFlow,
-        _searchQuery
-    ) { allProducts, query ->
-        if (query.isBlank()) {
-            allProducts
-        } else {
-            allProducts.filter {
-                it.name.contains(query, ignoreCase = true) || it.category.contains(query, ignoreCase = true)
+        _searchQuery,
+        _selectedCategory
+    ) { allProducts, query, category ->
+        var filteredList = allProducts
+
+        // 1. Filtrar por texto
+        if (query.isNotBlank()) {
+            filteredList = filteredList.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                        it.description.contains(query, ignoreCase = true)
             }
         }
+
+        // 2. Filtrar por Categoría
+        if (category != null) {
+            filteredList = filteredList.filter {
+                it.category.equals(category, ignoreCase = true)
+            }
+        }
+
+        filteredList
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
 
-    // Estado del carrito de compras (persistencia SIMULADA en memoria)
+    // Carrito y Pedidos
     private val _cart = MutableStateFlow<List<CartItem>>(emptyList())
     val cart: StateFlow<List<CartItem>> = _cart
 
-    // --- CORRECCIÓN 1: Añadir estado para Pedidos Completados ---
     private val _orders = MutableStateFlow<List<CartItem>>(emptyList())
     val orders: StateFlow<List<CartItem>> = _orders
-    // --- FIN CORRECCIÓN 1 ---
 
-    // Propiedades derivadas del carrito
-    val cartTotal: StateFlow<Double> = _cart.map { it.sumOf { item -> item.subtotal } }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+    // --- CORRECCIÓN AQUÍ: Cálculo directo, sin archivo externo ---
+    val cartTotal: StateFlow<Double> = _cart.map { list ->
+        list.sumOf { it.subtotal }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
 
     init {
-        // Inicializar la base de datos de Room con datos estáticos
         viewModelScope.launch {
-            productRepository.populateDatabase()
+            productRepository.refreshProducts()
+            fetchCategories()
         }
     }
 
-    // ... (register, login... se mantienen igual)
-    fun register(email: String, password: String, onRegisterSuccess: () -> Unit) {
-        viewModelScope.launch {
-            if (email.isNotBlank() && password.length >= 6) {
-                userSessionRepository.setLoggedIn(true)
-                onRegisterSuccess()
-            }
+    private suspend fun fetchCategories() {
+        try {
+            val apiCategories = RetrofitInstance.api.getCategories()
+            _categories.value = apiCategories
+        } catch (e: Exception) {
+            println("Error al cargar categorías: ${e.message}")
         }
     }
 
-    fun login(email: String, password: String, onLoginSuccess: () -> Unit) {
-        viewModelScope.launch {
-            if (email.isNotBlank() && password.length >= 6) {
-                userSessionRepository.setLoggedIn(true)
-                onLoginSuccess()
-            } else {
-                // Manejar error de login
-            }
+    fun selectCategory(categoryName: String) {
+        if (_selectedCategory.value == categoryName) {
+            _selectedCategory.value = null
+        } else {
+            _selectedCategory.value = categoryName
         }
+    }
+
+    fun register(email: String, p: String, onSuccess: () -> Unit) {
+        viewModelScope.launch { if (email.isNotBlank()) { userSessionRepository.setLoggedIn(true); onSuccess() } }
+    }
+
+    fun login(email: String, p: String, onSuccess: () -> Unit) {
+        viewModelScope.launch { if (email.isNotBlank()) { userSessionRepository.setLoggedIn(true); onSuccess() } }
     }
 
     fun logout() {
         viewModelScope.launch {
             userSessionRepository.setLoggedIn(false)
             _cart.value = emptyList()
-            _orders.value = emptyList() // --- CORRECCIÓN 2: Limpiar pedidos al salir ---
+            _orders.value = emptyList()
         }
     }
 
-    fun onSearchQueryChange(query: String) {
-        _searchQuery.value = query
-    }
+    fun onSearchQueryChange(query: String) { _searchQuery.value = query }
 
     fun addToCart(product: Product) {
-        _cart.update { currentCart ->
-            val existingItem = currentCart.find { it.product.id == product.id }
-            if (existingItem != null) {
-                currentCart.map {
-                    if (it.product.id == product.id) {
-                        it.copy(quantity = it.quantity + 1)
-                    } else {
-                        it
-                    }
-                }
+        _cart.update { current ->
+            val existing = current.find { it.product.id == product.id }
+            if (existing != null) {
+                current.map { if (it.product.id == product.id) it.copy(quantity = it.quantity + 1) else it }
             } else {
-                currentCart + CartItem(product, 1)
+                current + CartItem(product, 1)
             }
         }
     }
 
-    fun updateCartItemQuantity(product: Product, newQuantity: Int) {
-        _cart.update { currentCart ->
-            currentCart.mapNotNull {
-                if (it.product.id == product.id) {
-                    if (newQuantity > 0) {
-                        it.copy(quantity = newQuantity)
-                    } else {
-                        null
-                    }
-                } else {
-                    it
-                }
-            }
-        }
+    fun updateCartItemQuantity(p: Product, q: Int) {
+        _cart.update { c -> c.mapNotNull { if (it.product.id == p.id) (if (q > 0) it.copy(quantity = q) else null) else it } }
     }
 
-    fun removeItemFromCart(product: Product) {
-        _cart.update { currentCart ->
-            currentCart.filter { it.product.id != product.id }
-        }
-    }
+    fun removeItemFromCart(p: Product) { _cart.update { it.filter { item -> item.product.id != p.id } } }
 
     fun checkout() {
-        println("Venta Enviada al Backend:")
-        _cart.value.forEach {
-            println(" - ${it.product.name}: ${it.quantity} x ${it.product.price} = ${it.subtotal} CLP")
-        }
-        println("TOTAL: ${_cart.value.sumOf { it.subtotal }} CLP")
-
-        // --- CORRECCIÓN 3: Guardar el carrito en la lista de Pedidos ---
-        _orders.update { currentOrders ->
-            currentOrders + _cart.value
-        }
-
-        // Vaciar carrito
+        _orders.update { it + _cart.value }
         _cart.value = emptyList()
     }
 }

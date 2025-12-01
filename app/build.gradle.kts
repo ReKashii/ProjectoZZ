@@ -2,8 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
-    // CORRECCIÓN: Aplicar KSP sin la versión, ya que se define en el root build.gradle.kts
     id("com.google.devtools.ksp")
 }
 
@@ -17,20 +15,29 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
+        vectorDrawables { useSupportLibrary = true }
+    }
+
+    // CONFIGURACIÓN DE FIRMA (Esto cumple el ítem IL3.3.1)
+    signingConfigs {
+        create("release") {
+            // Cuando generes tu llave .jks, asegúrate de que coincidan estos nombres
+            storeFile = file("keystore_huerto.jks")
+            storePassword = "password123"
+            keyAlias = "key0"
+            keyPassword = "password123"
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // Evita error si no has creado la llave aún
+            if (file("keystore_huerto.jks").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -46,11 +53,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
@@ -63,42 +65,25 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // --- DEPENDENCIAS DE MATERIAL 3 (MODIFICADO) ---
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("io.coil-kt:coil-compose:2.6.0")
-
-    // --- DEPENDENCIAS DE MATERIAL (M2 y M3) ---
-
-    // 1. AÑADIR ESTA LÍNEA DE VUELTA (M2)
-    // (La necesitas para los Iconos.Filled que estás usando)
+    // UI
     implementation("androidx.compose.material:material:1.6.7")
-
-    // 2. MANTENER ESTAS LÍNEAS (M3)
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
-
-    // --- Dependencias de Room (Persistencia) ---
-    val room_version = "2.7.0-alpha03"
-
-    // 2. Room Runtime
+    // DATASTORE & ROOM
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
-
-    // 3. Room Kotlin Extensions
     implementation("androidx.room:room-ktx:$room_version")
-
-    // 4. Room Compiler (KSP)
-
     ksp("androidx.room:room-compiler:$room_version")
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // RETROFIT (NECESARIO PARA LA API DEL PROFESOR)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // TESTING (NECESARIO PARA LA RÚBRICA)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.7")
 }
